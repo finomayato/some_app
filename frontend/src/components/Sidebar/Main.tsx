@@ -1,6 +1,8 @@
 import { Link as RouterLink, useRouterState } from "@tanstack/react-router"
 import type { LucideIcon } from "lucide-react"
 
+import type { Permission } from "@/client"
+
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -14,6 +16,8 @@ export type Item = {
   icon: LucideIcon
   title: string
   path: string
+  /** When set, the entry is only shown to roles holding this permission. */
+  permission?: Permission
 }
 
 interface MainProps {

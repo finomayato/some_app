@@ -42,7 +42,7 @@ test.describe("Admin user management", () => {
     await expect(userRow).toBeVisible()
   })
 
-  test("Create a superuser", async ({ page }) => {
+  test("Create an admin user", async ({ page }) => {
     await page.goto("/admin")
 
     const email = randomEmail()
@@ -53,7 +53,8 @@ test.describe("Admin user management", () => {
     await page.getByPlaceholder("Email").fill(email)
     await page.getByPlaceholder("Password").first().fill(password)
     await page.getByPlaceholder("Password").last().fill(password)
-    await page.getByLabel("Is superuser?").check()
+    await page.getByRole("combobox", { name: "Role" }).click()
+    await page.getByRole("option", { name: "Admin" }).click()
     await page.getByLabel("Is active?").check()
 
     await page.getByRole("button", { name: "Save" }).click()
@@ -63,7 +64,7 @@ test.describe("Admin user management", () => {
     await expect(page.getByRole("dialog")).not.toBeVisible()
 
     const userRow = page.getByRole("row").filter({ hasText: email })
-    await expect(userRow.getByText("Superuser")).toBeVisible()
+    await expect(userRow.getByText("Admin")).toBeVisible()
   })
 
   test("Edit a user successfully", async ({ page }) => {
@@ -182,20 +183,38 @@ test.describe("Admin user management", () => {
 test.describe("Admin page access control", () => {
   test.use({ storageState: { cookies: [], origins: [] } })
 
-  test("Non-superuser cannot access admin page", async ({ page }) => {
+  test("Member sees Access denied on the admin page", async ({ page }) => {
     const email = randomEmail()
     const password = randomPassword()
 
-    await createUser({ email, password })
+    await createUser({ email, password, role: "member" })
     await logInUser(page, email, password)
 
     await page.goto("/admin")
 
+    // The route now renders Forbidden in place, instead of redirecting away,
+    // and the session must survive the 403.
+    await expect(page.getByTestId("forbidden")).toBeVisible()
     await expect(page.getByRole("heading", { name: "Users" })).not.toBeVisible()
-    await expect(page).not.toHaveURL(/\/admin/)
+    await expect(page).toHaveURL(/\/admin/)
   })
 
-  test("Superuser can access admin page", async ({ page }) => {
+  test("Manager can list users but not create them", async ({ page }) => {
+    const email = randomEmail()
+    const password = randomPassword()
+
+    await createUser({ email, password, role: "manager" })
+    await logInUser(page, email, password)
+
+    await page.goto("/admin")
+
+    await expect(page.getByRole("heading", { name: "Users" })).toBeVisible()
+    await expect(
+      page.getByRole("button", { name: "Add User" }),
+    ).not.toBeVisible()
+  })
+
+  test("Admin can access admin page", async ({ page }) => {
     await logInUser(page, firstSuperuser, firstSuperuserPassword)
 
     await page.goto("/admin")

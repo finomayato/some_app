@@ -18,9 +18,11 @@ interface UserActionsMenuProps {
 
 export const UserActionsMenu = ({ user }: UserActionsMenuProps) => {
   const [open, setOpen] = useState(false)
-  const { user: currentUser } = useAuth()
+  const { user: currentUser, hasPermission } = useAuth()
 
-  if (user.id === currentUser?.id) {
+  // Managers can see the user list but not act on it, so hide the menu entirely
+  // rather than offering actions the API would reject.
+  if (user.id === currentUser?.id || !hasPermission("users:manage")) {
     return null
   }
 

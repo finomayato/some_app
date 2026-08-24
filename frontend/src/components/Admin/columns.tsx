@@ -3,10 +3,20 @@ import type { ColumnDef } from "@tanstack/react-table"
 import type { UserPublic } from "@/client"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { type ROLES, roleLabels } from "./roles"
 import { UserActionsMenu } from "./UserActionsMenu"
 
 export type UserTableData = UserPublic & {
   isCurrentUser: boolean
+}
+
+const roleBadgeVariants: Record<
+  (typeof ROLES)[number],
+  "default" | "secondary" | "outline"
+> = {
+  admin: "default",
+  manager: "secondary",
+  member: "outline",
 }
 
 export const columns: ColumnDef<UserTableData>[] = [
@@ -39,13 +49,12 @@ export const columns: ColumnDef<UserTableData>[] = [
     ),
   },
   {
-    accessorKey: "is_superuser",
+    accessorKey: "role",
     header: "Role",
-    cell: ({ row }) => (
-      <Badge variant={row.original.is_superuser ? "default" : "secondary"}>
-        {row.original.is_superuser ? "Superuser" : "User"}
-      </Badge>
-    ),
+    cell: ({ row }) => {
+      const role = row.original.role ?? "member"
+      return <Badge variant={roleBadgeVariants[role]}>{roleLabels[role]}</Badge>
+    },
   },
   {
     accessorKey: "is_active",

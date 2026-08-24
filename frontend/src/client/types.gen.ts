@@ -123,6 +123,24 @@ export type Message = {
 };
 
 /**
+ * MetricsPublic
+ */
+export type MetricsPublic = {
+    /**
+     * Users
+     */
+    users: number;
+    /**
+     * Active Users
+     */
+    active_users: number;
+    /**
+     * Items
+     */
+    items: number;
+};
+
+/**
  * NewPassword
  */
 export type NewPassword = {
@@ -135,6 +153,11 @@ export type NewPassword = {
      */
     new_password: string;
 };
+
+/**
+ * Permission
+ */
+export type Permission = 'users:read' | 'users:create' | 'users:manage' | 'items:read_any' | 'metrics:read' | 'settings:manage';
 
 /**
  * PrivateUserCreate
@@ -152,11 +175,17 @@ export type PrivateUserCreate = {
      * Full Name
      */
     full_name: string;
+    role?: Role;
     /**
      * Is Verified
      */
     is_verified?: boolean;
 };
+
+/**
+ * Role
+ */
+export type Role = 'admin' | 'manager' | 'member';
 
 /**
  * Token
@@ -198,10 +227,7 @@ export type UserCreate = {
      * Is Active
      */
     is_active?: boolean;
-    /**
-     * Is Superuser
-     */
-    is_superuser?: boolean;
+    role?: Role;
     /**
      * Full Name
      */
@@ -210,6 +236,42 @@ export type UserCreate = {
      * Password
      */
     password: string;
+};
+
+/**
+ * UserMePublic
+ *
+ * The current user plus what their role allows.
+ *
+ * Returned only by `GET /users/me`. The frontend reads `permissions` to decide
+ * what to show, so it never needs its own copy of the role/permission table.
+ */
+export type UserMePublic = {
+    /**
+     * Email
+     */
+    email: string;
+    /**
+     * Is Active
+     */
+    is_active?: boolean;
+    role?: Role;
+    /**
+     * Full Name
+     */
+    full_name?: string | null;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Created At
+     */
+    created_at?: string | null;
+    /**
+     * Permissions
+     */
+    permissions: Array<Permission>;
 };
 
 /**
@@ -224,10 +286,7 @@ export type UserPublic = {
      * Is Active
      */
     is_active?: boolean;
-    /**
-     * Is Superuser
-     */
-    is_superuser?: boolean;
+    role?: Role;
     /**
      * Full Name
      */
@@ -272,10 +331,7 @@ export type UserUpdate = {
      * Is Active
      */
     is_active?: boolean | null;
-    /**
-     * Is Superuser
-     */
-    is_superuser?: boolean | null;
+    role?: Role | null;
     /**
      * Full Name
      */
@@ -554,7 +610,7 @@ export type usersReadUserMeResponses = {
     /**
      * Successful Response
      */
-    200: UserPublic;
+    200: UserMePublic;
 };
 
 export type usersReadUserMeResponse = usersReadUserMeResponses[keyof usersReadUserMeResponses];
@@ -920,6 +976,22 @@ export type itemsUpdateItemResponses = {
 };
 
 export type itemsUpdateItemResponse = itemsUpdateItemResponses[keyof itemsUpdateItemResponses];
+
+export type metricsReadMetricsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/metrics/';
+};
+
+export type metricsReadMetricsResponses = {
+    /**
+     * Successful Response
+     */
+    200: MetricsPublic;
+};
+
+export type metricsReadMetricsResponse = metricsReadMetricsResponses[keyof metricsReadMetricsResponses];
 
 export type privateCreateUserData = {
     body: PrivateUserCreate;

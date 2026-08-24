@@ -20,10 +20,9 @@ client.setConfig({
 })
 
 const handleApiError = (error: Error) => {
-  if (
-    error instanceof AxiosError &&
-    [401, 403].includes(error.response?.status ?? 0)
-  ) {
+  // Only 401. A 403 means the session is valid but the action isn't allowed, so
+  // the user stays logged in and the UI shows Forbidden or an error toast.
+  if (error instanceof AxiosError && error.response?.status === 401) {
     localStorage.removeItem("access_token")
     window.location.href = "/login"
   }

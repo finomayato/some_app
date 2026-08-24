@@ -17,6 +17,12 @@ uv sync
 uv run bash scripts/prestart.sh
 ```
 
+This runs the migrations and seeds one account per role: `admin@example.com`,
+`manager@example.com` and `member@example.com`, all with the password from
+`FIRST_SUPERUSER_PASSWORD`. The manager and member are seeded only when
+`FASTAPI_ENV=development`. See [Authorization](./README.md#authorization) for what
+each role can do.
+
 Start the FastAPI development server:
 
 ```bash
